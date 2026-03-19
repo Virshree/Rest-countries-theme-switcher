@@ -3,7 +3,6 @@ import data from "../data.json";
 
 function Countries({ dark }) {
   const [countriesData, setCountriesData] = useState([]);
-
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [searchCountry, setSearchCountry] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -11,213 +10,227 @@ function Countries({ dark }) {
 
   useEffect(() => {
     setCountriesData(data);
-    console.log("Data:", data);
   }, []);
+
   const getBorderName = (code) => {
     const country = countriesData.find((c) => c.alpha3Code === code);
     return country ? country.name : code;
   };
 
+  // ✅ Filter logic
   const filteredCountries = countriesData.filter((country) => {
     const matchSearch = country.name
       .toLowerCase()
       .includes(searchCountry.toLowerCase());
+
     const matchRegion = region ? country.region === region : true;
+
     return matchSearch && matchRegion;
   });
+
   const displayCountries =
     searchCountry || region ? filteredCountries : countriesData;
+
   return (
-    <div>
-      <div
-        className={
-          dark ? "bg-[#202c37] text-white" : "bg-[#fcfcfc] text-[#202c37] "
-        }
-        style={{ minHeight: "100vh" }}
-      >
-        <div className="flex flex-wrap ml-20 mt-20">
-          <>
-            {/* Search Country  */}
-            {!selectedCountry && (
-              <div className="flex justify-between gap-[870px]">
-                <input
-                  type="text"
-                  placeholder="Search for a country ..."
-                  className="w-[460px] border h-15 ml-25 p-3 rounded-xl"
-                  value={searchCountry}
-                  onChange={(e) => setSearchCountry(e.target.value)}
-                />
+    <div
+      className={`min-h-screen ${
+        dark ? "bg-[#202c37] text-white" : "bg-[#fafafa] text-[#202c37]"
+      }`}
+    >
+      {/* 🔍 Search + Filter */}
+      {!selectedCountry && (
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-4 md:px-20 pt-10">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search for a country..."
+            className="w-full md:w-[400px] h-12 p-3 rounded-xl border shadow"
+            value={searchCountry}
+            onChange={(e) => setSearchCountry(e.target.value)}
+          />
 
-                <div className="relative inline-block m-3">
-                  {/* ✅ Button */}
-                  <button
-                    onClick={() => setShowDropdown((prev) => !prev)}
-                    className={`${
-                      dark
-                        ? "bg-[hsl(209,23%,22%)] text-white"
-                        : "bg-white text-black"
-                    } p-3 cursor-pointer rounded-lg shadow`}
-                  >
-                    {region || "Filter by"} ⌄
-                  </button>
+          {/* Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown((prev) => !prev)}
+              className={`${
+                dark
+                  ? "bg-[hsl(209,23%,22%)] text-white"
+                  : "bg-white text-black"
+              } p-3 rounded-lg shadow w-[180px] text-left overflow-hidden`}
+            >
+              {region || "Filter by Region"}   ⌄
+            </button>
 
-                  {/* ✅ Dropdown (SEPARATE from button) */}
-                  {showDropdown && (
-                    <div
-                      className={`absolute z-50 mt-2 w-48 rounded-lg shadow ${
+            {showDropdown && (
+              <div
+                className={`absolute z-50 mt-2 w-full rounded-lg shadow ${
+                  dark
+                    ? "bg-[hsl(209,23%,22%)] text-white"
+                    : "bg-white text-black"
+                }`}
+              >
+                {["Africa", "Americas", "Asia", "Europe", "Oceania"].map(
+                  (r) => (
+                    <p
+                      key={r}
+                      onClick={() => {
+                        setRegion(r);
+                        setShowDropdown(false);
+                      }}
+                      className={`p-2 cursor-pointer ${
                         dark
-                          ? "bg-[hsl(209,23%,22%)] text-white"
-                          : "bg-white text-black"
+                          ? "hover:bg-[hsl(209,23%,30%)]"
+                          : "hover:bg-gray-200"
                       }`}
                     >
-                      {["Africa", "Americas", "Asia", "Europe", "Oceania"].map(
-                        (r) => (
-                          <p
-                            key={r}
-                            onClick={() => {
-                              setRegion(r);
-                              setShowDropdown(false);
-                            }}
-                            className={`p-2 cursor-pointer ${
-                              dark
-                                ? "hover:bg-[hsl(209,23%,30%)]"
-                                : "hover:bg-gray-200"
-                            }`}
-                          >
-                            {r}
-                          </p>
-                        )
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {selectedCountry ? (
-              // 👉 DETAIL VIEW
-              <div>
-                <button
-                  onClick={() => setSelectedCountry(null)}
-                  className={`ml-[10px] ${
-                    dark
-                      ? "bg-[hsl(209,23%,22%)] text-white"
-                      : "bg-white text-black"
-                  }  p-4 rounded-2xl w-1/13 shadow cursor-pointer`}
-                >
-                  ← Back
-                </button>
-
-                <div className="flex gap-[120px] mt-10">
-                  <img src={selectedCountry.flags.png} className="w-[550px] " />
-
-                  <div className="flex flex-col">
-                    <h2 className="text-3xl mt-15">{selectedCountry.name}</h2>
-                    <div className="mt-6 gap-3 flex flex-col">
-                      <span>
-                        <b>Native Name: </b>
-                        <span>{selectedCountry.nativeName}</span>
-                      </span>{" "}
-                      <span>
-                        <b>Population:</b>{" "}
-                        {selectedCountry.population.toLocaleString()}
-                      </span>
-                      <span>
-                        <b>Region:</b> {selectedCountry.region}
-                      </span>
-                      <span>
-                        <b>Sub Region:</b> {selectedCountry.subregion}
-                      </span>
-                      <span>
-                        <b>Capital: </b>
-                        {selectedCountry.capital}
-                      </span>
-                      <span className="mt-5 ">
-                        <b>Border Countries:</b>{" "}
-                        {selectedCountry.borders?.length > 0 ? (
-                          selectedCountry.borders.map((border, index) => (
-                            <span
-                              key={index}
-                              className={`${
-                                dark
-                                  ? "bg-[hsl(209,23%,22%)] text-white"
-                                  : "bg-white text-black"
-                              } m-1  p-2 rounded shadow`}
-                            >
-                              {getBorderName(border)}
-                            </span>
-                          ))
-                        ) : (
-                          <span>No Border Countries</span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col mt-22">
-                    <div className=" flex mt-6 gap-3 flex-col">
-                      <span>
-                        <b>Top level Domain:</b>{" "}
-                        {selectedCountry.topLevelDomain}{" "}
-                      </span>
-                      <span>
-                        <b>Curriences:</b>{" "}
-                        {selectedCountry.currencies?.map((item) => item.code)}
-                      </span>
-                      <span>
-                        <b>Languages: </b>
-                        {selectedCountry.languages
-                          ?.map((item) => item.name)
-                          .join(", ")}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              // 👉 LIST VIEW
-              <div className="flex flex-wrap m-20 p-2 justify-center items-center">
-                {displayCountries.length > 0 ? (
-                  displayCountries?.map((item, index) => (
-                    <div
-                      onClick={() => setSelectedCountry(item)}
-                      className={`w-[320px] h-[380px] shadow rounded-xl m-6 overflow-hidden cursor-pointer hover:scale-105 transition 
-            ${
-              dark ? "bg-[hsl(209,23%,22%)] text-white" : "bg-white text-black"
-            }`}
-                      key={index}
-                    >
-                      <img
-                        src={item.flags.png}
-                        alt="flags"
-                        className="w-full h-[200px] object-cover"
-                      />
-
-                      <h2 className="font-black text-2xl p-2">{item.name}</h2>
-
-                      <div className="flex flex-col p-2">
-                        <span>
-                          <b>Population:</b> {item.population.toLocaleString()}
-                        </span>
-                        <span>
-                          <b>Region:</b> {item.region}
-                        </span>
-                        <span>
-                          <b>Capital:</b> {item.capital}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center text-red-500 text-2xl ml-140">
-                    No country found{" "}
-                  </p>
+                      {r}
+                    </p>
+                  )
                 )}
               </div>
             )}
-          </>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* 🌍 CONTENT */}
+      {selectedCountry ? (
+        // 👉 DETAIL VIEW
+        <div className="px-4 md:px-20 py-10">
+          <button
+            onClick={() => setSelectedCountry(null)}
+            className={`mb-6 px-6 py-2 rounded shadow ${
+              dark
+                ? "bg-[hsl(209,23%,22%)] text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            ← Back
+          </button>
+
+          <div className="flex flex-col lg:flex-row gap-10">
+            {/* Image */}
+            <img
+              src={selectedCountry.flags.png}
+              className="w-full lg:w-[550px]"
+              alt="flag"
+            />
+
+            {/* Info */}
+            <div className="flex flex-col">
+              <h2 className="text-2xl md:text-3xl mb-4">
+                {selectedCountry.name}
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <span>
+                    <b>Native Name:</b> {selectedCountry.nativeName}
+                  </span>
+                  <span>
+                    <b>Population:</b>{" "}
+                    {selectedCountry.population.toLocaleString()}
+                  </span>
+                  <span>
+                    <b>Region:</b> {selectedCountry.region}
+                  </span>
+                  <span>
+                    <b>Sub Region:</b> {selectedCountry.subregion}
+                  </span>
+                  <span>
+                    <b>Capital:</b> {selectedCountry.capital}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <span>
+                    <b>Top Level Domain:</b>{" "}
+                    {selectedCountry.topLevelDomain}
+                  </span>
+                  <span>
+                    <b>Currencies:</b>{" "}
+                    {selectedCountry.currencies
+                      ?.map((c) => c.code)
+                      .join(", ")}
+                  </span>
+                  <span>
+                    <b>Languages:</b>{" "}
+                    {selectedCountry.languages
+                      ?.map((l) => l.name)
+                      .join(", ")}
+                  </span>
+                </div>
+              </div>
+
+              {/* Borders */}
+              <div className="mt-6">
+                <b>Border Countries:</b>
+                <div className="flex flex-wrap mt-2">
+                  {selectedCountry.borders?.length > 0 ? (
+                    selectedCountry.borders.map((border, index) => (
+                      <span
+                        key={index}
+                        className={`m-1 p-2 rounded shadow ${
+                          dark
+                            ? "bg-[hsl(209,23%,22%)] text-white"
+                            : "bg-white text-black"
+                        }`}
+                      >
+                        {getBorderName(border)}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="ml-2">No Border Countries</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        // 👉 LIST VIEW
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 md:px-20 py-10">
+          {displayCountries.length > 0 ? (
+            displayCountries.map((item, index) => (
+              <div
+                key={index}
+                onClick={() => setSelectedCountry(item)}
+                className={`shadow rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition ${
+                  dark
+                    ? "bg-[hsl(209,23%,22%)] text-white"
+                    : "bg-white text-black"
+                }`}
+              >
+                <img
+                  src={item.flags.png}
+                  alt="flag"
+                  className="w-full h-40 object-cover"
+                />
+
+                <h2 className="font-bold text-lg p-2">{item.name}</h2>
+
+                <div className="flex flex-col p-2 text-sm">
+                  <span>
+                    <b>Population:</b>{" "}
+                    {item.population.toLocaleString()}
+                  </span>
+                  <span>
+                    <b>Region:</b> {item.region}
+                  </span>
+                  <span>
+                    <b>Capital:</b> {item.capital}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="col-span-full text-center text-red-500 text-xl">
+              No country found
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

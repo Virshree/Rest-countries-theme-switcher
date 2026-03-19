@@ -7,10 +7,11 @@ function Navbar() {
   return (
     <div
       className={
-        dark
+        `   md:justify-between md:items-center
+       ${ dark
           ? "bg-[hsl(207,26%,17%)] min-h-screen"
-          : "bg-[hsl(0,0%,99%)] min-h-screen"
-      }
+          : "bg-[hsl(0,0%,99%)] min-h-screen"}
+      `}
     >
       {/* Navbar */}
       <div
@@ -20,11 +21,11 @@ function Navbar() {
             : "bg-[hsl(0,0%,99%)] text-[hsl(200,15%,8%)] shadow"
         }`}
       >
-        <h2 className="text-2xl font-semibold">Where in the world?</h2>
+        <h2 className=" md:text-base  font-semibold">Where in the world?</h2>
 
         <button
           onClick={() => setDark(!dark)}
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer text-sm sm:text-base"
         >
           {dark ? (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
