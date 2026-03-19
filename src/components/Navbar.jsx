@@ -49,7 +49,7 @@ function Navbar() {
 
       {/* Content */}
 
-      <Countries dark={dark} setDark={setDark} />
+      <Countries dark={dark}  />
     </div>
   );
 }
